@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { Card as CardType } from "../utils/types";
 import { Card } from "./Card";
 import styles from "../styles/Cards.module.css";
+import { Button, FormGroup } from "@material-ui/core";
 
 export default function Cards({ cards }: { cards: CardType[] }) {
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
@@ -44,19 +45,22 @@ export default function Cards({ cards }: { cards: CardType[] }) {
         ))}
       </ul>
 
-      <div>
-        <input type="button" value="Flip Card" onClick={() => setFlip(!flip)} />
-      </div>
+      <FormGroup>
+        <Button variant="outlined" onClick={() => setFlip(!flip)}>
+          Flip
+        </Button>
+      </FormGroup>
 
-      <div>
-        <input
-          type="button"
-          value="Previous"
+      <FormGroup row>
+        <Button
+          variant="outlined"
           onClick={() => {
             setFlip(false);
             previousCard();
           }}
-        />
+        >
+          Previous
+        </Button>
         <span>
           <input
             type="number"
@@ -69,15 +73,16 @@ export default function Cards({ cards }: { cards: CardType[] }) {
           />{" "}
           / {cards.length}
         </span>
-        <input
-          type="button"
-          value="Next"
+        <Button
+          variant="outlined"
           onClick={() => {
             setFlip(false);
             nextCard();
           }}
-        />
-      </div>
+        >
+          Next
+        </Button>
+      </FormGroup>
     </div>
   );
 }

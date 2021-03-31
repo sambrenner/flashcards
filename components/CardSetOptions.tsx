@@ -1,4 +1,15 @@
-import { FormEvent } from "react";
+import {
+  Button,
+  ButtonGroup,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
+  Radio,
+  RadioGroup,
+} from "@material-ui/core";
+import { ChangeEvent, FormEvent } from "react";
 import { setFieldsToValue } from "../utils/objects";
 import {
   CardSetOptions as CardSetOptionsType,
@@ -16,96 +27,104 @@ export default function CardSetOptions({
   onOptionsChange: (options: CardSetOptionsType) => void;
 }) {
   return (
-    <form>
-      <fieldset>
-        <legend>Active Sets</legend>
-        {Object.keys(cardSets).map((cs) => (
-          <span key={cs}>
-            <input
-              type="checkbox"
-              id={cs}
-              checked={options.selectedSets[cs] || false}
-              onChange={(evt: FormEvent<HTMLInputElement>) => {
-                const checkbox = evt.currentTarget;
-
-                onOptionsChange({
-                  ...options,
-                  selectedSets: {
-                    ...options.selectedSets,
-                    [checkbox.id]: checkbox.checked,
-                  },
-                });
-              }}
-            />
-            <label htmlFor={cs}>{cs}</label>
-          </span>
-        ))}
-
-        <input
-          type="button"
-          value="All"
-          onClick={() => {
-            onOptionsChange({
-              ...options,
-              selectedSets: setFieldsToValue(options.selectedSets, true),
-            });
-          }}
-        />
-        <input
-          type="button"
-          value="None"
-          onClick={() => {
-            onOptionsChange({
-              ...options,
-              selectedSets: setFieldsToValue(options.selectedSets, false),
-            });
-          }}
-        />
-      </fieldset>
-
-      <fieldset>
-        <legend>Ordering</legend>
-
-        {Object.values(Ordering)
-          .filter((o) => typeof o === "string")
-          .map((mode, i) => {
-            const modeStr = mode.toString();
-
-            return (
-              <span key={modeStr}>
-                <input
-                  type="radio"
-                  id={modeStr}
-                  name="ordering"
-                  checked={
-                    Ordering[modeStr as keyof typeof Ordering] ===
-                    options.ordering
-                  }
+    <div>
+      <FormControl component="fieldset" margin="normal" fullWidth>
+        <FormLabel component="legend">Active Sets</FormLabel>
+        <FormGroup row>
+          {Object.keys(cardSets).map((cs) => (
+            <FormControlLabel
+              key={cs}
+              control={
+                <Checkbox
+                  id={cs}
+                  checked={options.selectedSets[cs] || false}
                   onChange={(evt: FormEvent<HTMLInputElement>) => {
+                    const checkbox = evt.currentTarget;
+
                     onOptionsChange({
                       ...options,
-                      ordering:
-                        Ordering[evt.currentTarget.id as keyof typeof Ordering],
+                      selectedSets: {
+                        ...options.selectedSets,
+                        [checkbox.id]: checkbox.checked,
+                      },
                     });
                   }}
                 />
-                <label htmlFor={modeStr}>{modeStr}</label>
-              </span>
-            );
-          })}
+              }
+              label={cs}
+            />
+          ))}
 
-        <input
-          type="button"
-          value="Shuffle"
-          onClick={() => {
-            onOptionsChange({
-              ...options,
-              ordering: Ordering.Random,
-              randomSeed: Math.random(),
-            });
-          }}
-        />
-      </fieldset>
-    </form>
+          <ButtonGroup aria-label="outlined primary button group">
+            <Button
+              onClick={() => {
+                onOptionsChange({
+                  ...options,
+                  selectedSets: setFieldsToValue(options.selectedSets, true),
+                });
+              }}
+            >
+              All
+            </Button>
+            <Button
+              onClick={() => {
+                onOptionsChange({
+                  ...options,
+                  selectedSets: setFieldsToValue(options.selectedSets, false),
+                });
+              }}
+            >
+              None
+            </Button>
+          </ButtonGroup>
+        </FormGroup>
+      </FormControl>
+
+      <FormControl component="fieldset" margin="normal" fullWidth>
+        <FormLabel component="legend">Ordering</FormLabel>
+        <FormGroup row>
+          <RadioGroup
+            row
+            aria-label="ordering"
+            name="ordering"
+            value={Ordering[options.ordering]}
+            onChange={(evt: ChangeEvent<HTMLInputElement>) => {
+              onOptionsChange({
+                ...options,
+                ordering: Ordering[evt.target.value as keyof typeof Ordering],
+              });
+            }}
+          >
+            {Object.values(Ordering)
+              .filter((o) => typeof o === "string")
+              .map((mode, i) => {
+                const modeStr = mode.toString();
+
+                return (
+                  <FormControlLabel
+                    value={modeStr}
+                    key={modeStr}
+                    control={<Radio />}
+                    label={modeStr}
+                  />
+                );
+              })}
+          </RadioGroup>
+
+          <Button
+            variant="outlined"
+            onClick={() => {
+              onOptionsChange({
+                ...options,
+                ordering: Ordering.Random,
+                randomSeed: Math.random(),
+              });
+            }}
+          >
+            Shuffle
+          </Button>
+        </FormGroup>
+      </FormControl>
+    </div>
   );
 }
