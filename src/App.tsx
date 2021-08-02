@@ -1,26 +1,25 @@
-import Layout from "../components/Layout";
-import {
-  GoogleLogin,
+import React, { useEffect, useState } from "react";
+import "./App.css";
+import GoogleLogin, {
   GoogleLoginResponse,
   GoogleLoginResponseOffline,
 } from "react-google-login";
-import { useEffect, useState } from "react";
-import { server } from "../config";
+import { getSheet, listSheets } from "./drive/api";
 import {
   CardSetOptions as CardSetOptionsType,
   CardSheet,
   Ordering,
   Sheet,
-} from "../utils/types";
-import SheetSelector from "../components/SheetSelector";
-import CardSetOptions from "../components/CardSetOptions";
-import Cards from "../components/Cards";
-import { getCardsToDisplay } from "../utils/cards";
+} from "./utils/types";
+import SheetSelector from "./components/SheetSelector";
+import CardSetOptions from "./components/CardSetOptions";
+import { getCardsToDisplay } from "./utils/cards";
+import Cards from "./components/Cards";
 
 const scope = "https://www.googleapis.com/auth/drive.readonly";
 type GoogleRsp = GoogleLoginResponse | GoogleLoginResponseOffline;
 
-const IndexPage = () => {
+function App() {
   const [showButton, toggleShow] = useState(true);
   const [token, setToken] = useState("");
   const [sheets, setSheets] = useState<Sheet[]>([]);
@@ -36,14 +35,8 @@ const IndexPage = () => {
     if (!token) return;
 
     const fetchData = async () => {
-      const res = await fetch(`${server}/api/sheets`, {
-        headers: {
-          Authorization: token,
-        },
-      });
-
-      const data = await res.json();
-      setSheets(data.sheets);
+      const data = await listSheets(token);
+      setSheets(data);
     };
 
     fetchData();
@@ -56,15 +49,10 @@ const IndexPage = () => {
     }
 
     const fetchData = async () => {
-      const res = await fetch(`${server}/api/sheets/${activeSheetId}`, {
-        headers: {
-          Authorization: token,
-        },
-      });
-
-      const data: CardSheet = await res.json();
+      const data = await getSheet(activeSheetId, token);
 
       setCardSheet(data);
+
       setCardSetOptions({
         ...cardSetOptions,
         selectedSets: Object.keys(data.sets).reduce<Record<string, boolean>>(
@@ -81,15 +69,17 @@ const IndexPage = () => {
   }, [activeSheetId]);
 
   return (
-    <Layout title="Flashcards">
+    <div className="App">
       {showButton && (
         <GoogleLogin
-          clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
+          clientId={
+            "142991266792-cncfqbdl9kih5n5tim08telk7p9958v2.apps.googleusercontent.com"
+          }
           scope={scope}
           buttonText="Connect to Google"
           onSuccess={(rsp: GoogleRsp) => {
             toggleShow(false);
-            setToken("tokenId" in rsp ? rsp.accessToken : "");
+            setToken("accessToken" in rsp ? rsp.accessToken : "");
           }}
           onFailure={(err: any) => {
             console.log(err);
@@ -118,8 +108,8 @@ const IndexPage = () => {
           <Cards cards={getCardsToDisplay(cardSheet.sets, cardSetOptions)} />
         </>
       )}
-    </Layout>
+    </div>
   );
-};
+}
 
-export default IndexPage;
+export default App;

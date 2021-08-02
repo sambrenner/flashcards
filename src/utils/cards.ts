@@ -1,4 +1,4 @@
-import shuffler from "seededshuffle";
+import { shuffle } from "./shuffle";
 import { CardSets, CardSetOptions, Ordering, Card } from "./types";
 
 export function getCardsToDisplay(
@@ -10,7 +10,7 @@ export function getCardsToDisplay(
     .flatMap((s) => cardSets[s]);
 
   if (options.ordering === Ordering.Random) {
-    return shuffler.shuffle(cards, options.randomSeed);
+    return shuffle(cards, options.randomSeed);
   }
 
   if (options.ordering === Ordering.Alphabetical) {
